@@ -17,7 +17,6 @@
  */
 
 import UIKit
-import SnapKit
 
 import MarqueeLabel
 
@@ -197,9 +196,11 @@ open class BaseNotificationBanner: UIView {
 
         spacerView = UIView()
         addSubview(spacerView)
+        spacerView.translatesAutoresizingMaskIntoConstraints = false
 
         contentView = UIView()
         addSubview(contentView)
+        contentView.translatesAutoresizingMaskIntoConstraints = false
 
         if let colors = colors {
             backgroundColor = colors.color(for: style)
@@ -226,45 +227,34 @@ open class BaseNotificationBanner: UIView {
         Creates the proper banner constraints based on the desired banner position
      */
     private func createBannerConstraints(for bannerPosition: BannerPosition) {
-
-        spacerView.snp.remakeConstraints { (make) in
-            if bannerPosition == .top {
-                make.top.equalToSuperview().offset(-spacerViewDefaultOffset)
-            } else {
-                make.bottom.equalToSuperview().offset(spacerViewDefaultOffset)
-            }
-            make.left.equalToSuperview()
-            make.right.equalToSuperview()
-            updateSpacerViewHeight(make: make)
+        
+        if bannerPosition == .top {
+            spacerView.topAnchor.constraint(equalTo: topAnchor, constant: -spacerViewDefaultOffset).isActive = true
+        } else {
+              spacerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: spacerViewDefaultOffset).isActive = true
         }
+        updateSpacerViewHeight()
+        spacerView.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
+        spacerView.rightAnchor.constraint(equalTo: rightAnchor).isActive = true
 
-        contentView.snp.remakeConstraints { (make) in
-            if bannerPosition == .top {
-                make.top.equalTo(spacerView.snp.bottom)
-                make.bottom.equalToSuperview()
-            } else {
-                make.top.equalToSuperview()
-                make.bottom.equalTo(spacerView.snp.top)
-            }
-
-            make.left.equalToSuperview()
-            make.right.equalToSuperview()
+        guard let contentSuperview = spacerView.superview else { return }
+        if bannerPosition == .top {
+            contentView.topAnchor.constraint(equalTo: spacerView.bottomAnchor).isActive = true
+            contentView.bottomAnchor.constraint(equalTo: contentSuperview.bottomAnchor).isActive = true
+        } else {
+            contentView.topAnchor.constraint(equalTo: contentSuperview.topAnchor).isActive = true
+            contentView.bottomAnchor.constraint(equalTo: spacerView.topAnchor).isActive = true
         }
-
+        contentView.leftAnchor.constraint(equalTo: contentSuperview.leftAnchor).isActive = true
+        contentView.rightAnchor.constraint(equalTo: contentSuperview.rightAnchor).isActive = true
     }
 
     /**
          Updates the spacer view height. Specifically used for orientation changes.
      */
-    private func updateSpacerViewHeight(make: ConstraintMaker? = nil) {
+    private func updateSpacerViewHeight() {
         let finalHeight = spacerViewHeight()
-        if let make = make {
-            make.height.equalTo(finalHeight)
-        } else {
-            spacerView.snp.updateConstraints({ (make) in
-                make.height.equalTo(finalHeight)
-            })
-        }
+        spacerView.heightAnchor.constraint(equalToConstant: finalHeight).isActive = true
     }
 
     internal func spacerViewHeight() -> CGFloat {

@@ -17,7 +17,6 @@
  */
 
 import UIKit
-import SnapKit
 
 open class GrowingNotificationBanner: BaseNotificationBanner {
     
@@ -131,8 +130,11 @@ open class GrowingNotificationBanner: BaseNotificationBanner {
         }
         
         if let leftView = leftView {
+            leftView.translatesAutoresizingMaskIntoConstraints = false
             outerStackView.addArrangedSubview(leftView)
-            leftView.snp.makeConstraints { $0.size.equalTo(sideViewSize) }
+            [leftView.heightAnchor.constraint(equalToConstant: sideViewSize),
+             leftView.widthAnchor.constraint(equalToConstant: sideViewSize)]
+                .forEach { $0.isActive = true }
         }
         
         outerStackView.addArrangedSubview(labelsView)
@@ -160,22 +162,23 @@ open class GrowingNotificationBanner: BaseNotificationBanner {
         }
         
         if let rightView = rightView {
+            rightView.translatesAutoresizingMaskIntoConstraints = false
             outerStackView.addArrangedSubview(rightView)
-            rightView.snp.makeConstraints { $0.size.equalTo(sideViewSize) }
+            [rightView.heightAnchor.constraint(equalToConstant: sideViewSize),
+            rightView.widthAnchor.constraint(equalToConstant: sideViewSize)]
+               .forEach { $0.isActive = true }
         }
         
         contentView.addSubview(outerStackView)
-        outerStackView.snp.makeConstraints { (make) in
-            if #available(iOS 11.0, *) {
-                make.left.equalTo(safeAreaLayoutGuide).offset(padding)
-                make.right.equalTo(safeAreaLayoutGuide).offset(-padding)
-            } else {
-                make.left.equalToSuperview().offset(padding)
-                make.right.equalToSuperview().offset(-padding)
-            }
-            
-            make.centerY.equalToSuperview()
+        outerStackView.translatesAutoresizingMaskIntoConstraints = false
+        if #available(iOS 11.0, *) {
+            outerStackView.leftAnchor.constraint(equalTo: safeAreaLayoutGuide.leftAnchor, constant: padding).isActive = true
+            outerStackView.rightAnchor.constraint(equalTo: safeAreaLayoutGuide.rightAnchor, constant: -padding).isActive = true
+        } else {
+            outerStackView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: padding).isActive = true
+            outerStackView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -padding).isActive = true
         }
+        outerStackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
     }
     
     required public init?(coder aDecoder: NSCoder) {

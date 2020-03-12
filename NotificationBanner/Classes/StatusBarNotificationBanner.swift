@@ -41,19 +41,21 @@ open class StatusBarNotificationBanner: BaseNotificationBanner {
         super.init(style: style, colors: colors)
 
         titleLabel = MarqueeLabel()
+        titleLabel?.translatesAutoresizingMaskIntoConstraints = false
         (titleLabel as! MarqueeLabel).animationDelay = 2
         (titleLabel as! MarqueeLabel).type = .leftRight
         titleLabel!.font = UIFont.systemFont(ofSize: 12.5, weight: UIFont.Weight.bold)
         titleLabel!.textAlignment = .center
         titleLabel!.textColor = .white
         contentView.addSubview(titleLabel!)
-
-        titleLabel!.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().offset(heightAdjustment)
-            make.left.equalToSuperview().offset(5)
-            make.right.equalToSuperview().offset(-5)
-            make.bottom.equalToSuperview()
-        }
+        
+        [titleLabel!.topAnchor.constraint(equalTo: contentView.topAnchor, constant: heightAdjustment),
+        titleLabel!.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 5),
+        titleLabel!.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -5),
+        titleLabel!.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)]
+            .forEach { $0.isActive = true }
+        
+        setNeedsLayout()
 
         updateMarqueeLabelsDurations()
     }
@@ -77,9 +79,11 @@ open class StatusBarNotificationBanner: BaseNotificationBanner {
         self.customView = customView
         
         contentView.addSubview(customView)
-        customView.snp.makeConstraints { make in
-            make.edges.equalTo(contentView)
-        }
+        [customView.topAnchor.constraint(equalTo: contentView.topAnchor),
+        customView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+        customView.leftAnchor.constraint(equalTo: contentView.leftAnchor),
+        customView.rightAnchor.constraint(equalTo: contentView.rightAnchor)]
+           .forEach { $0.isActive = true }
 
         spacerView.backgroundColor = customView.backgroundColor
     }

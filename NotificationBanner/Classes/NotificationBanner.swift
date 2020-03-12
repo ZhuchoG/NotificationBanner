@@ -17,7 +17,6 @@
  */
 
 import UIKit
-import SnapKit
 
 import MarqueeLabel
 
@@ -50,29 +49,29 @@ open class NotificationBanner: BaseNotificationBanner {
         
         if let leftView = leftView {
             contentView.addSubview(leftView)
-            
+            leftView.translatesAutoresizingMaskIntoConstraints = false
             let size = (leftView.frame.height > 0) ? min(44, leftView.frame.height) : 44
-            
-            leftView.snp.makeConstraints({ (make) in
-                make.centerY.equalToSuperview().offset(heightAdjustment / 4)
-                make.left.equalToSuperview().offset(10)
-                make.size.equalTo(size)
-            })
+            [leftView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: heightAdjustment / 4),
+            leftView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 10),
+            leftView.heightAnchor.constraint(equalToConstant: size),
+            leftView.widthAnchor.constraint(equalToConstant: size)]
+                .forEach { $0.isActive = true }
         }
         
         if let rightView = rightView {
             contentView.addSubview(rightView)
-            
+            rightView.translatesAutoresizingMaskIntoConstraints = false
             let size = (rightView.frame.height > 0) ? min(44, rightView.frame.height) : 44
-            rightView.snp.makeConstraints({ (make) in
-                make.centerY.equalToSuperview().offset(heightAdjustment / 4)
-                make.left.equalToSuperview().offset(10)
-                make.size.equalTo(size)
-            })
+            [rightView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: heightAdjustment / 4),
+            rightView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -10),
+            rightView.heightAnchor.constraint(equalToConstant: size),
+            rightView.widthAnchor.constraint(equalToConstant: size)]
+               .forEach { $0.isActive = true }
         }
         
         let labelsView = UIView()
         contentView.addSubview(labelsView)
+        labelsView.translatesAutoresizingMaskIntoConstraints = false
         
         if let title = title {
             titleLabel = MarqueeLabel()
@@ -81,16 +80,16 @@ open class NotificationBanner: BaseNotificationBanner {
             titleLabel!.textColor = .white
             titleLabel!.text = title
             labelsView.addSubview(titleLabel!)
+            titleLabel?.translatesAutoresizingMaskIntoConstraints = false
+            [titleLabel!.topAnchor.constraint(equalTo: labelsView.topAnchor),
+             titleLabel!.leftAnchor.constraint(equalTo: labelsView.leftAnchor),
+             titleLabel!.rightAnchor.constraint(equalTo: labelsView.rightAnchor)]
+                .forEach { $0.isActive = true}
             
-            titleLabel!.snp.makeConstraints { (make) in
-                make.top.equalToSuperview()
-                make.left.equalToSuperview()
-                make.right.equalToSuperview()
-                if let _ = subtitle {
-                    titleLabel!.numberOfLines = 1
-                } else {
-                    titleLabel!.numberOfLines = 2
-                }
+            if let _ = subtitle {
+                titleLabel!.numberOfLines = 1
+            } else {
+                titleLabel!.numberOfLines = 2
             }
         }
         
@@ -102,42 +101,39 @@ open class NotificationBanner: BaseNotificationBanner {
             subtitleLabel!.textColor = .white
             subtitleLabel!.text = subtitle
             labelsView.addSubview(subtitleLabel!)
-            
-            subtitleLabel!.snp.makeConstraints { (make) in
-                if title != nil {
-                    make.top.equalTo(titleLabel!.snp.bottom).offset(2.5)
-                    make.left.equalTo(titleLabel!)
-                    make.right.equalTo(titleLabel!)
-                }
-                else {
-                    make.top.equalToSuperview()
-                    make.left.equalToSuperview()
-                    make.right.equalToSuperview()
-                }
-            }
+            subtitleLabel?.translatesAutoresizingMaskIntoConstraints = false
+            if title != nil {
+                [subtitleLabel!.topAnchor.constraint(equalTo: titleLabel!.bottomAnchor, constant: 2.5),
+                subtitleLabel!.leftAnchor.constraint(equalTo: titleLabel!.leftAnchor),
+                subtitleLabel!.rightAnchor.constraint(equalTo: titleLabel!.rightAnchor)]
+               .forEach { $0.isActive = true}
+           }
+           else {
+                [subtitleLabel!.topAnchor.constraint(equalTo: labelsView.topAnchor),
+               subtitleLabel!.leftAnchor.constraint(equalTo: labelsView.leftAnchor),
+               subtitleLabel!.rightAnchor.constraint(equalTo: labelsView.rightAnchor)]
+                  .forEach { $0.isActive = true}
+           }
         }
         
-        labelsView.snp.makeConstraints { (make) in
-            make.centerY.equalToSuperview().offset(heightAdjustment / 4)
-            
-            if let leftView = leftView {
-                make.left.equalTo(leftView.snp.right).offset(padding)
-            } else {
-                make.left.equalToSuperview().offset(padding)
-            }
-            
-            if let rightView = rightView {
-                make.right.equalTo(rightView.snp.left).offset(-padding)
-            } else {
-                make.right.equalToSuperview().offset(-padding)
-            }
-            
-            if let subtitleLabel = subtitleLabel {
-                make.bottom.equalTo(subtitleLabel)
-            } else {
-                make.bottom.equalTo(titleLabel!)
-            }
-        }
+        labelsView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: heightAdjustment / 4).isActive = true
+        if let leftView = leftView {
+            labelsView.leftAnchor.constraint(equalTo: leftView.rightAnchor, constant: padding).isActive = true
+       } else {
+            labelsView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: padding).isActive = true
+       }
+
+       if let rightView = rightView {
+            labelsView.rightAnchor.constraint(equalTo: rightView.leftAnchor, constant: -padding).isActive = true
+       } else {
+            labelsView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -padding).isActive = true
+       }
+
+       if let subtitleLabel = subtitleLabel {
+        labelsView.bottomAnchor.constraint(equalTo: subtitleLabel.bottomAnchor).isActive = true
+       } else {
+        labelsView.bottomAnchor.constraint(equalTo: titleLabel!.bottomAnchor).isActive = true
+       }
         
         updateMarqueeLabelsDurations()
         
@@ -161,9 +157,12 @@ open class NotificationBanner: BaseNotificationBanner {
         self.customView = customView
         
         contentView.addSubview(customView)
-        customView.snp.makeConstraints { (make) in
-            make.edges.equalTo(contentView)
-        }
+        customView.translatesAutoresizingMaskIntoConstraints = false
+        [customView.topAnchor.constraint(equalTo: contentView.topAnchor),
+        customView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+        customView.leftAnchor.constraint(equalTo: contentView.leftAnchor),
+        customView.rightAnchor.constraint(equalTo: contentView.rightAnchor)]
+           .forEach { $0.isActive = true }
         
         spacerView.backgroundColor = customView.backgroundColor
     }
